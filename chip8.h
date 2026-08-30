@@ -1,3 +1,4 @@
+#pragma once
 #include <chrono>
 #include <cstdint>
 #include <random>
@@ -14,7 +15,7 @@ public:
     uint16_t programCounter{};
     uint16_t stack[16]{};
     uint8_t stackPointer{};
-    uint8_t delatTimer{};
+    uint8_t delayTimer{};
     uint8_t soundTimer{};
     uint8_t keypad[16]{};
     uint32_t displayBuffer[64 * 32]{};

@@ -43,7 +43,7 @@ void chip8::load_rom(const char* const fileName)
     if(rom.is_open())
     {
         // get size of file
-        std::streampos fileSize = rom.tellg();
+        const std::streamsize fileSize = static_cast<std::streamsize>(rom.tellg());
 
         // go back to beginning
         rom.seekg(0);
