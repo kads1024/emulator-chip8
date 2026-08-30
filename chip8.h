@@ -1,7 +1,13 @@
+#include <chrono>
 #include <cstdint>
+#include <random>
 
-struct chip8
+class chip8
 {
+public:
+    chip8();
+
+public:
     uint8_t registers[16];
     uint8_t memory[4096];
     uint16_t index;
@@ -14,4 +20,11 @@ struct chip8
     uint32_t displayBuffer[64 * 32];
 
     uint16_t opcode; // $AD22 - first byte = op, second byte = data
+
+
+    void load_rom(const char* const fileName);
+
+private:
+    std::default_random_engine randomNumberGenerator;
+    std::uniform_int_distribution<uint8_t> randomByte;
 };
