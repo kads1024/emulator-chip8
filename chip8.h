@@ -28,6 +28,13 @@ private:
     std::default_random_engine randomNumberGenerator;
     std::uniform_int_distribution<uint8_t> randomByte;
 
+    using chip8func = void (chip8::*)();
+    chip8func masterTable[0xF + 1];
+    chip8func table0[0xE + 1];
+    chip8func table8[0xE + 1];
+    chip8func tableE[0xE + 1];
+    chip8func tableF[0x65 + 1];
+
 private:
     // Vx, Vy = register
     // n = nibble
@@ -85,4 +92,11 @@ private:
     void OP_Fx33(); // LD B, Vx
     void OP_Fx55(); // LD [I], Vx (write to memory from I to I+X)
     void OP_Fx65(); // LD Vx, [I] (read from memory fro I to I+X)
+    void OP_NULL(); // No op
+
+    // tables
+    void Table0();
+    void Table8();
+    void TableE();
+    void TableF();
 };

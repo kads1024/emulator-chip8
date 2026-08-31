@@ -34,6 +34,8 @@ chip8::chip8() : randomNumberGenerator(std::chrono::system_clock::now().time_sin
     {
         memory[FONTSET_ADDRESS + fontByte] = fontset[fontByte];
     }
+
+    // Fill tables
 }
 
 void chip8::load_rom(const char* const fileName)
@@ -53,4 +55,28 @@ void chip8::load_rom(const char* const fileName)
 
         rom.close();
     }
+}
+
+void chip8::OP_NULL()
+{
+}
+
+void chip8::Table0()
+{
+    (this->*table0[opcode & 0x000Fu])();
+}
+
+void chip8::Table8()
+{
+    (this->*table8[opcode & 0x000Fu])();
+}
+
+void chip8::TableE()
+{
+    (this->*tableE[opcode & 0x000Fu])();
+}
+
+void chip8::TableF()
+{
+    (this->*tableF[opcode & 0x00FFu])();
 }
