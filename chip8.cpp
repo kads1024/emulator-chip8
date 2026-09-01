@@ -113,6 +113,16 @@ void chip8::load_rom(const char* const fileName)
     }
 }
 
+void chip8::cycle_cpu()
+{
+    // Fetch
+    // Increment PC
+    // Decode + execute
+    // Decrement DT
+    // Decrement ST
+}
+
+
 void chip8::OP_NULL()
 {
 }

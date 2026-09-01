@@ -22,7 +22,10 @@ public:
 
     uint16_t opcode{}; // $AD22 - first byte = op, second byte = data
 
+    
+public:
     void load_rom(const char *const fileName);
+    void cycle_cpu();
 
 private:
     std::default_random_engine randomNumberGenerator;
