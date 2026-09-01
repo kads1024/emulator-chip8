@@ -94,11 +94,11 @@ chip8::chip8() : randomNumberGenerator(std::chrono::system_clock::now().time_sin
     tableF[0x0065u] = &chip8::OP_Fx65;
 }
 
-void chip8::load_rom(const char* const fileName)
+void chip8::load_rom(const char *const fileName)
 {
     std::ifstream rom(fileName, std::ios::binary | std::ios::ate);
 
-    if(rom.is_open())
+    if (rom.is_open())
     {
         // get size of file
         const std::streamsize fileSize = static_cast<std::streamsize>(rom.tellg());
@@ -107,7 +107,7 @@ void chip8::load_rom(const char* const fileName)
         rom.seekg(0);
 
         // fill memory
-        rom.read(reinterpret_cast<char*>(memory + ROM_START_ADDRESS), fileSize);
+        rom.read(reinterpret_cast<char *>(memory + ROM_START_ADDRESS), fileSize);
 
         rom.close();
     }
@@ -125,14 +125,13 @@ void chip8::cycle_cpu()
     (this->*masterTable[opcode >> 12u])();
 
     // Decrement DT
-    if(delayTimer > 0)
+    if (delayTimer > 0)
         delayTimer--;
 
     // Decrement ST
-    if(soundTimer > 0)
+    if (soundTimer > 0)
         soundTimer--;
 }
-
 
 void chip8::OP_NULL()
 {
@@ -160,170 +159,179 @@ void chip8::TableF()
 
 void chip8::OP_00E0()
 {
-    std::cout << std::hex << opcode << ": OP_00E0\n";
+    // set the entire video buffer to zeroes.
 }
 
 void chip8::OP_00EE()
 {
-    std::cout << std::hex << opcode << ": OP_00EE\n";
+    // The top of the stack has the address of one instruction past the one that called the subroutine, so we can put that back into the PC. Note that this overwrites our preemptive pc += 2 earlier.
 }
 
 void chip8::OP_1nnn()
 {
-    std::cout << std::hex << opcode << ": OP_1nnn\n";
+    // The interpreter sets the program counter to nnn.
+    // A jump doesn’t remember its origin, so no stack interaction required.
 }
 
 void chip8::OP_2nnn()
 {
-    std::cout << std::hex << opcode << ": OP_2nnn\n";
+    // When we call a subroutine, we want to return eventually, so we put the current PC onto the top of the stack. Remember that we did pc += 2 in Cycle(), so the current PC holds the next instruction after this CALL, which is correct. We don’t want to return to the CALL instruction because it would be an infinite loop of CALLs and RETs.
 }
 
 void chip8::OP_3xkk()
 {
-    std::cout << std::hex << opcode << ": OP_3xkk\n";
+    // Since our PC has already been incremented by 2 in Cycle(), we can just increment by 2 again to skip the next instruction.
 }
 
 void chip8::OP_4xkk()
 {
-    std::cout << std::hex << opcode << ": OP_4xkk\n";
+    // Since our PC has already been incremented by 2 in Cycle(), we can just increment by 2 again to skip the next instruction.
 }
 
 void chip8::OP_5xy0()
 {
-    std::cout << std::hex << opcode << ": OP_5xy0\n";
+    // Since our PC has already been incremented by 2 in Cycle(), we can just increment by 2 again to skip the next instruction.
 }
 
 void chip8::OP_6xkk()
 {
-    std::cout << std::hex << opcode << ": OP_6xkk\n";
+    
 }
 
 void chip8::OP_7xkk()
 {
-    std::cout << std::hex << opcode << ": OP_7xkk\n";
+    
 }
 
 void chip8::OP_8xy0()
 {
-    std::cout << std::hex << opcode << ": OP_8xy0\n";
+    
 }
 
 void chip8::OP_8xy1()
 {
-    std::cout << std::hex << opcode << ": OP_8xy1\n";
+   
 }
 
 void chip8::OP_8xy2()
 {
-    std::cout << std::hex << opcode << ": OP_8xy2\n";
+    
 }
 
 void chip8::OP_8xy3()
 {
-    std::cout << std::hex << opcode << ": OP_8xy3\n";
+   
 }
 
 void chip8::OP_8xy4()
 {
-    std::cout << std::hex << opcode << ": OP_8xy4\n";
+    // The values of Vx and Vy are added together. If the result is greater than 8 bits (i.e., > 255,) VF is set to 1, otherwise 0. Only the lowest 8 bits of the result are kept, and stored in Vx.
+    // This is an ADD with an overflow flag.If the sum is greater than what can fit into a byte(255), register VF will be set to 1 as a flag.
 }
 
 void chip8::OP_8xy5()
 {
-    std::cout << std::hex << opcode << ": OP_8xy5\n";
+    // If Vx > Vy, then VF is set to 1, otherwise 0. Then Vy is subtracted from Vx, and the results stored in Vx.
 }
 
 void chip8::OP_8xy6()
 {
-    std::cout << std::hex << opcode << ": OP_8xy6\n";
+    // If the least-significant bit of Vx is 1, then VF is set to 1, otherwise 0. Then Vx is divided by 2.
+    // A right shift is performed(division by 2), and the least significant bit is saved in Register VF.
 }
 
 void chip8::OP_8xy7()
 {
-    std::cout << std::hex << opcode << ": OP_8xy7\n";
+    // If Vy > Vx, then VF is set to 1, otherwise 0. Then Vx is subtracted from Vy, and the results stored in Vx.
 }
 
 void chip8::OP_8xyE()
 {
-    std::cout << std::hex << opcode << ": OP_8xyE\n";
+    // If the most-significant bit of Vx is 1, then VF is set to 1, otherwise to 0. Then Vx is multiplied by 2.
+    // A left shift is performed(multiplication by 2), and the most significant bit is saved in Register VF.
 }
 
 void chip8::OP_9xy0()
 {
-    std::cout << std::hex << opcode << ": OP_9xy0\n";
+    // Since our PC has already been incremented by 2 in Cycle(), we can just increment by 2 again to skip the next instruction.
 }
 
 void chip8::OP_Annn()
 {
-    std::cout << std::hex << opcode << ": OP_Annn\n";
+   
 }
 
 void chip8::OP_Bnnn()
 {
-    std::cout << std::hex << opcode << ": OP_Bnnn\n";
+    
 }
 
 void chip8::OP_Cxkk()
 {
-    std::cout << std::hex << opcode << ": OP_Cxkk\n";
+    
 }
 
 void chip8::OP_Dxyn()
 {
-    std::cout << std::hex << opcode << ": OP_Dxyn\n";
+    // Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision.
+    // We iterate over the sprite, row by row and column by column. We know there are eight columns because a sprite is guaranteed to be eight pixels wide.
+    // If a sprite pixel is on then there may be a collision with what’s already being displayed, so we check if our screen pixel in the same location is set. If so we must set the VF register to express collision.
+    // Then we can just XOR the screen pixel with 0xFFFFFFFF to essentially XOR it with the sprite pixel (which we now know is on). We can’t XOR directly because the sprite pixel is either 1 or 0 while our video pixel is either 0x00000000 or 0xFFFFFFFF.
 }
 
 void chip8::OP_Ex9E()
 {
-    std::cout << std::hex << opcode << ": OP_Ex9E\n";
+    // Since our PC has already been incremented by 2 in Cycle(), we can just increment by 2 again to skip the next instruction.
 }
 
 void chip8::OP_ExA1()
 {
-    std::cout << std::hex << opcode << ": OP_ExA1\n";
+    // Since our PC has already been incremented by 2 in Cycle(), we can just increment by 2 again to skip the next instruction.
 }
 
 void chip8::OP_Fx07()
 {
-    std::cout << std::hex << opcode << ": OP_Fx07\n";
+    
 }
 
 void chip8::OP_Fx0A()
 {
-    std::cout << std::hex << opcode << ": OP_Fx0A\n";
+    // The easiest way to “wait” is to decrement the PC by 2 whenever a keypad value is not detected. This has the effect of running the same instruction repeatedly.
 }
 
 void chip8::OP_Fx15()
 {
-    std::cout << std::hex << opcode << ": OP_Fx15\n";
+    
 }
 
 void chip8::OP_Fx18()
 {
-    std::cout << std::hex << opcode << ": OP_Fx18\n";
+  
 }
 
 void chip8::OP_Fx1E()
 {
-    std::cout << std::hex << opcode << ": OP_Fx1E\n";
+   
 }
 
 void chip8::OP_Fx29()
 {
-    std::cout << std::hex << opcode << ": OP_Fx29\n";
+    // We know the font characters are located at 0x50, and we know they’re five bytes each, so we can get the address of the first byte of any character by taking an offset from the start address.
 }
 
 void chip8::OP_Fx33()
 {
-    std::cout << std::hex << opcode << ": OP_Fx33\n";
+    // Store BCD representation of Vx in memory locations I, I+1, and I+2.
+    // The interpreter takes the decimal value of Vx, and places the hundreds digit in memory at location in I, the tens digit at location I+1, and the ones digit at location I+2.
+    // We can use the modulus operator to get the right-most digit of a number, and then do a division to remove that digit. A division by ten will either completely remove the digit (340 / 10 = 34), or result in a float which will be truncated (345 / 10 = 34.5 = 34).
 }
 
 void chip8::OP_Fx55()
 {
-    std::cout << std::hex << opcode << ": OP_Fx55\n";
+   
 }
 
 void chip8::OP_Fx65()
 {
-    std::cout << std::hex << opcode << ": OP_Fx65\n";
+   
 }
