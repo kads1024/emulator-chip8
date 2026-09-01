@@ -29,7 +29,7 @@ uint8_t fontset[FONTSET_SIZE] =
 chip8::chip8() : randomNumberGenerator(std::chrono::system_clock::now().time_since_epoch().count())
 {
     programCounter = ROM_START_ADDRESS;
-    randomByte = std::uniform_int_distribution<uint8_t>(0, 255U);
+    randomByte = std::uniform_int_distribution<unsigned int>(0, 255u);
 
     for (uint8_t fontByte = 0; fontByte < FONTSET_SIZE; fontByte++)
     {
@@ -57,13 +57,13 @@ chip8::chip8() : randomNumberGenerator(std::chrono::system_clock::now().time_sin
     // prefill subtable with OP_NULL
     for (uint8_t table08EsubTableIndex = 0; table08EsubTableIndex < 0x000E + 1; table08EsubTableIndex++)
     {
-        table0[table08EsubTableIndex] = OP_NULL;
-        table8[table08EsubTableIndex] = OP_NULL;
-        tableE[table08EsubTableIndex] = OP_NULL;
+        table0[table08EsubTableIndex] = &chip8::OP_NULL;
+        table8[table08EsubTableIndex] = &chip8::OP_NULL;
+        tableE[table08EsubTableIndex] = &chip8::OP_NULL;
     }
     for (uint8_t tableFSubTableIndex = 0; tableFSubTableIndex < 0x0065 + 1; tableFSubTableIndex++)
     {
-        tableF[tableFSubTableIndex] = OP_NULL;
+        tableF[tableFSubTableIndex] = &chip8::OP_NULL;
     }
 
     // fill correct subtable slots
@@ -116,10 +116,21 @@ void chip8::load_rom(const char* const fileName)
 void chip8::cycle_cpu()
 {
     // Fetch
+    opcode = memory[programCounter] << 8u | memory[programCounter + 1];
+
     // Increment PC
+    programCounter += 2;
+
     // Decode + execute
+    (this->*masterTable[opcode >> 12u])();
+
     // Decrement DT
+    if(delayTimer > 0)
+        delayTimer--;
+
     // Decrement ST
+    if(soundTimer > 0)
+        soundTimer--;
 }
 
 
@@ -149,170 +160,170 @@ void chip8::TableF()
 
 void chip8::OP_00E0()
 {
-    std::cout << "OP_00E0 ";
+    std::cout << std::hex << opcode << ": OP_00E0\n";
 }
 
 void chip8::OP_00EE()
 {
-    std::cout << "OP_00EE ";
+    std::cout << std::hex << opcode << ": OP_00EE\n";
 }
 
 void chip8::OP_1nnn()
 {
-    std::cout << "OP_1nnn ";
+    std::cout << std::hex << opcode << ": OP_1nnn\n";
 }
 
 void chip8::OP_2nnn()
 {
-    std::cout << "OP_2nnn ";
+    std::cout << std::hex << opcode << ": OP_2nnn\n";
 }
 
 void chip8::OP_3xkk()
 {
-    std::cout << "OP_3xkk ";
+    std::cout << std::hex << opcode << ": OP_3xkk\n";
 }
 
 void chip8::OP_4xkk()
 {
-    std::cout << "OP_4xkk ";
+    std::cout << std::hex << opcode << ": OP_4xkk\n";
 }
 
 void chip8::OP_5xy0()
 {
-    std::cout << "OP_5xy0 ";
+    std::cout << std::hex << opcode << ": OP_5xy0\n";
 }
 
 void chip8::OP_6xkk()
 {
-    std::cout << "OP_6xkk ";
+    std::cout << std::hex << opcode << ": OP_6xkk\n";
 }
 
 void chip8::OP_7xkk()
 {
-    std::cout << "OP_7xkk ";
+    std::cout << std::hex << opcode << ": OP_7xkk\n";
 }
 
 void chip8::OP_8xy0()
 {
-    std::cout << "OP_8xy0 ";
+    std::cout << std::hex << opcode << ": OP_8xy0\n";
 }
 
 void chip8::OP_8xy1()
 {
-    std::cout << "OP_8xy1 ";
+    std::cout << std::hex << opcode << ": OP_8xy1\n";
 }
 
 void chip8::OP_8xy2()
 {
-    std::cout << "OP_8xy2 ";
+    std::cout << std::hex << opcode << ": OP_8xy2\n";
 }
 
 void chip8::OP_8xy3()
 {
-    std::cout << "OP_8xy3 ";
+    std::cout << std::hex << opcode << ": OP_8xy3\n";
 }
 
 void chip8::OP_8xy4()
 {
-    std::cout << " OP_8xy4 ";
+    std::cout << std::hex << opcode << ": OP_8xy4\n";
 }
 
 void chip8::OP_8xy5()
 {
-    std::cout << "OP_8xy5 ";
+    std::cout << std::hex << opcode << ": OP_8xy5\n";
 }
 
 void chip8::OP_8xy6()
 {
-    std::cout << "OP_8xy6 ";
+    std::cout << std::hex << opcode << ": OP_8xy6\n";
 }
 
 void chip8::OP_8xy7()
 {
-    std::cout << "OP_8xy7 ";
+    std::cout << std::hex << opcode << ": OP_8xy7\n";
 }
 
 void chip8::OP_8xyE()
 {
-    std::cout << "OP_8xyE ";
+    std::cout << std::hex << opcode << ": OP_8xyE\n";
 }
 
 void chip8::OP_9xy0()
 {
-    std::cout << "OP_9xy0 ";
+    std::cout << std::hex << opcode << ": OP_9xy0\n";
 }
 
 void chip8::OP_Annn()
 {
-    std::cout << "OP_Annn ";
+    std::cout << std::hex << opcode << ": OP_Annn\n";
 }
 
 void chip8::OP_Bnnn()
 {
-    std::cout << "OP_Bnnn ";
+    std::cout << std::hex << opcode << ": OP_Bnnn\n";
 }
 
 void chip8::OP_Cxkk()
 {
-    std::cout << "OP_Cxkk ";
+    std::cout << std::hex << opcode << ": OP_Cxkk\n";
 }
 
 void chip8::OP_Dxyn()
 {
-    std::cout << "OP_Dxyn ";
+    std::cout << std::hex << opcode << ": OP_Dxyn\n";
 }
 
 void chip8::OP_Ex9E()
 {
-    std::cout << "OP_Ex9E ";
+    std::cout << std::hex << opcode << ": OP_Ex9E\n";
 }
 
 void chip8::OP_ExA1()
 {
-    std::cout << "OP_ExA1 ";
+    std::cout << std::hex << opcode << ": OP_ExA1\n";
 }
 
 void chip8::OP_Fx07()
 {
-    std::cout << "OP_Fx07 ";
+    std::cout << std::hex << opcode << ": OP_Fx07\n";
 }
 
 void chip8::OP_Fx0A()
 {
-    std::cout << "OP_Fx0A ";
+    std::cout << std::hex << opcode << ": OP_Fx0A\n";
 }
 
 void chip8::OP_Fx15()
 {
-    std::cout << "OP_Fx15 ";
+    std::cout << std::hex << opcode << ": OP_Fx15\n";
 }
 
 void chip8::OP_Fx18()
 {
-    std::cout << "OP_Fx18 ";
+    std::cout << std::hex << opcode << ": OP_Fx18\n";
 }
 
 void chip8::OP_Fx1E()
 {
-    std::cout << "OP_Fx1E ";
+    std::cout << std::hex << opcode << ": OP_Fx1E\n";
 }
 
 void chip8::OP_Fx29()
 {
-    std::cout << "OP_Fx29 ";
+    std::cout << std::hex << opcode << ": OP_Fx29\n";
 }
 
 void chip8::OP_Fx33()
 {
-    std::cout << "OP_Fx33 ";
+    std::cout << std::hex << opcode << ": OP_Fx33\n";
 }
 
 void chip8::OP_Fx55()
 {
-    std::cout << "OP_Fx55 ";
+    std::cout << std::hex << opcode << ": OP_Fx55\n";
 }
 
 void chip8::OP_Fx65()
 {
-    std::cout << "OP_Fx65 ";
+    std::cout << std::hex << opcode << ": OP_Fx65\n";
 }

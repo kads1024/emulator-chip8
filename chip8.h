@@ -29,7 +29,7 @@ public:
 
 private:
     std::default_random_engine randomNumberGenerator;
-    std::uniform_int_distribution<uint8_t> randomByte;
+    std::uniform_int_distribution<unsigned int> randomByte;
 
     using chip8func = void (chip8::*)();
     chip8func masterTable[0xF + 1];
