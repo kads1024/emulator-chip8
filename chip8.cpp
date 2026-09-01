@@ -35,7 +35,11 @@ chip8::chip8() : randomNumberGenerator(std::chrono::system_clock::now().time_sin
         memory[FONTSET_ADDRESS + fontByte] = fontset[fontByte];
     }
 
-    // Fill tables
+    // Fill msater table
+
+    // prefill subtable with OP_NULL
+
+    // fill correct subtable slots
 }
 
 void chip8::load_rom(const char* const fileName)
