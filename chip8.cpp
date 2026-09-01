@@ -1,5 +1,6 @@
 #include "chip8.h"
 #include <fstream>
+#include <iostream>
 
 constexpr uint16_t ROM_START_ADDRESS = 0x200;
 constexpr uint8_t FONTSET_SIZE = 0x50; // 80 total bytes (16 characters * 5 bytes each)
@@ -134,4 +135,174 @@ void chip8::TableE()
 void chip8::TableF()
 {
     (this->*tableF[opcode & 0x00FFu])();
+}
+
+void chip8::OP_00E0()
+{
+    std::cout << "OP_00E0 ";
+}
+
+void chip8::OP_00EE()
+{
+    std::cout << "OP_00EE ";
+}
+
+void chip8::OP_1nnn()
+{
+    std::cout << "OP_1nnn ";
+}
+
+void chip8::OP_2nnn()
+{
+    std::cout << "OP_2nnn ";
+}
+
+void chip8::OP_3xkk()
+{
+    std::cout << "OP_3xkk ";
+}
+
+void chip8::OP_4xkk()
+{
+    std::cout << "OP_4xkk ";
+}
+
+void chip8::OP_5xy0()
+{
+    std::cout << "OP_5xy0 ";
+}
+
+void chip8::OP_6xkk()
+{
+    std::cout << "OP_6xkk ";
+}
+
+void chip8::OP_7xkk()
+{
+    std::cout << "OP_7xkk ";
+}
+
+void chip8::OP_8xy0()
+{
+    std::cout << "OP_8xy0 ";
+}
+
+void chip8::OP_8xy1()
+{
+    std::cout << "OP_8xy1 ";
+}
+
+void chip8::OP_8xy2()
+{
+    std::cout << "OP_8xy2 ";
+}
+
+void chip8::OP_8xy3()
+{
+    std::cout << "OP_8xy3 ";
+}
+
+void chip8::OP_8xy4()
+{
+    std::cout << " OP_8xy4 ";
+}
+
+void chip8::OP_8xy5()
+{
+    std::cout << "OP_8xy5 ";
+}
+
+void chip8::OP_8xy6()
+{
+    std::cout << "OP_8xy6 ";
+}
+
+void chip8::OP_8xy7()
+{
+    std::cout << "OP_8xy7 ";
+}
+
+void chip8::OP_8xyE()
+{
+    std::cout << "OP_8xyE ";
+}
+
+void chip8::OP_9xy0()
+{
+    std::cout << "OP_9xy0 ";
+}
+
+void chip8::OP_Annn()
+{
+    std::cout << "OP_Annn ";
+}
+
+void chip8::OP_Bnnn()
+{
+    std::cout << "OP_Bnnn ";
+}
+
+void chip8::OP_Cxkk()
+{
+    std::cout << "OP_Cxkk ";
+}
+
+void chip8::OP_Dxyn()
+{
+    std::cout << "OP_Dxyn ";
+}
+
+void chip8::OP_Ex9E()
+{
+    std::cout << "OP_Ex9E ";
+}
+
+void chip8::OP_ExA1()
+{
+    std::cout << "OP_ExA1 ";
+}
+
+void chip8::OP_Fx07()
+{
+    std::cout << "OP_Fx07 ";
+}
+
+void chip8::OP_Fx0A()
+{
+    std::cout << "OP_Fx0A ";
+}
+
+void chip8::OP_Fx15()
+{
+    std::cout << "OP_Fx15 ";
+}
+
+void chip8::OP_Fx18()
+{
+    std::cout << "OP_Fx18 ";
+}
+
+void chip8::OP_Fx1E()
+{
+    std::cout << "OP_Fx1E ";
+}
+
+void chip8::OP_Fx29()
+{
+    std::cout << "OP_Fx29 ";
+}
+
+void chip8::OP_Fx33()
+{
+    std::cout << "OP_Fx33 ";
+}
+
+void chip8::OP_Fx55()
+{
+    std::cout << "OP_Fx55 ";
+}
+
+void chip8::OP_Fx65()
+{
+    std::cout << "OP_Fx65 ";
 }
