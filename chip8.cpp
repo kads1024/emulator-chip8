@@ -160,115 +160,191 @@ void chip8::TableF()
 void chip8::OP_00E0()
 {
     // set the entire video buffer to zeroes.
+    memset(displayBuffer, 0, sizeof(displayBuffer));
 }
 
 void chip8::OP_00EE()
 {
     // The top of the stack has the address of one instruction past the one that called the subroutine, so we can put that back into the PC. Note that this overwrites our preemptive pc += 2 earlier.
+    stackPointer--;
+    if (stackPointer < 0)
+    {
+        std::cerr << "OP_00EE: STACK POINTER CAN'T BE NEGATIVE\n";
+        stackPointer = 0;
+        return;
+    }
+    programCounter = stack[stackPointer];
 }
 
 void chip8::OP_1nnn()
 {
     // The interpreter sets the program counter to nnn.
     // A jump doesn’t remember its origin, so no stack interaction required.
+    programCounter = opcode & 0x0FFFu;
 }
 
 void chip8::OP_2nnn()
 {
     // When we call a subroutine, we want to return eventually, so we put the current PC onto the top of the stack. Remember that we did pc += 2 in Cycle(), so the current PC holds the next instruction after this CALL, which is correct. We don’t want to return to the CALL instruction because it would be an infinite loop of CALLs and RETs.
+    stack[stackPointer++] = programCounter;
+    programCounter = opcode & 0x0FFFu;
 }
 
 void chip8::OP_3xkk()
 {
     // Since our PC has already been incremented by 2 in Cycle(), we can just increment by 2 again to skip the next instruction.
-}
+    if(registers[(opcode >> 8u) & 0x000Fu] == (opcode & 0x00FFu))
+    {
+        programCounter += 2;
+    }
+ }
 
 void chip8::OP_4xkk()
 {
     // Since our PC has already been incremented by 2 in Cycle(), we can just increment by 2 again to skip the next instruction.
+    if (registers[(opcode >> 8u) & 0x000Fu] != (opcode & 0x00FFu))
+    {
+        programCounter += 2;
+    }
 }
 
 void chip8::OP_5xy0()
 {
     // Since our PC has already been incremented by 2 in Cycle(), we can just increment by 2 again to skip the next instruction.
+    if (registers[(opcode >> 8u) & 0x000Fu] == 
+    (registers[(opcode >> 4u) & 0x000Fu]))
+    {
+        programCounter += 2;
+    }
 }
 
 void chip8::OP_6xkk()
 {
-    
+    registers[(opcode >> 8u) & 0x000Fu] = (opcode & 0x00FFu);
 }
 
 void chip8::OP_7xkk()
 {
-    
+    registers[(opcode >> 8u) & 0x000Fu] += (opcode & 0x00FFu);
 }
 
 void chip8::OP_8xy0()
 {
-    
+    registers[(opcode >> 8u) & 0x000Fu] = registers[(opcode >> 4u) & 0x000Fu];
 }
 
 void chip8::OP_8xy1()
 {
-   
+    registers[(opcode >> 8u) & 0x000Fu] |= registers[(opcode >> 4u) & 0x000Fu];
 }
 
 void chip8::OP_8xy2()
 {
-    
+    registers[(opcode >> 8u) & 0x000Fu] &= registers[(opcode >> 4u) & 0x000Fu];
 }
 
 void chip8::OP_8xy3()
 {
-   
+    registers[(opcode >> 8u) & 0x000Fu] ^= registers[(opcode >> 4u) & 0x000Fu];
 }
 
 void chip8::OP_8xy4()
 {
     // The values of Vx and Vy are added together. If the result is greater than 8 bits (i.e., > 255,) VF is set to 1, otherwise 0. Only the lowest 8 bits of the result are kept, and stored in Vx.
     // This is an ADD with an overflow flag.If the sum is greater than what can fit into a byte(255), register VF will be set to 1 as a flag.
+    uint16_t Vx = (opcode >> 8u) & 0x000Fu;
+    uint16_t Vy = (opcode >> 4u) & 0x000Fu;
+    uint16_t regVx = registers[Vx];
+    uint16_t regVy = registers[Vy];
+
+    if(regVx + regVy > 0x00FFu)
+        registers[0x000Fu] = 1;
+    else
+        registers[0x000Fu] = 0;
+
+    registers[Vx] += registers[Vy];
 }
 
 void chip8::OP_8xy5()
 {
     // If Vx > Vy, then VF is set to 1, otherwise 0. Then Vy is subtracted from Vx, and the results stored in Vx.
+    uint16_t Vx = (opcode >> 8u) & 0x000Fu;
+    uint16_t Vy = (opcode >> 4u) & 0x000Fu;
+
+    if (registers[Vx] > registers[Vy])
+        registers[0x000Fu] = 1;
+    else
+        registers[0x000Fu] = 0;
+
+    registers[Vx] -= registers[Vy];
 }
 
 void chip8::OP_8xy6()
 {
     // If the least-significant bit of Vx is 1, then VF is set to 1, otherwise 0. Then Vx is divided by 2.
     // A right shift is performed(division by 2), and the least significant bit is saved in Register VF.
+    uint16_t Vx = (opcode >> 8u) & 0x000Fu;
+
+
+    if (registers[Vx] & 0x0001u)
+        registers[0x000Fu] = 1;
+    else
+        registers[0x000Fu] = 0;
+
+    registers[Vx] >>= 1;
 }
 
 void chip8::OP_8xy7()
 {
     // If Vy > Vx, then VF is set to 1, otherwise 0. Then Vx is subtracted from Vy, and the results stored in Vx.
+    uint16_t Vx = (opcode >> 8u) & 0x000Fu;
+    uint16_t Vy = (opcode >> 4u) & 0x000Fu;
+
+    if (registers[Vy] > registers[Vx])
+        registers[0x000Fu] = 1;
+    else
+        registers[0x000Fu] = 0;
+
+    registers[Vx] = registers[Vy] - registers[Vx];
 }
 
 void chip8::OP_8xyE()
 {
     // If the most-significant bit of Vx is 1, then VF is set to 1, otherwise to 0. Then Vx is multiplied by 2.
     // A left shift is performed(multiplication by 2), and the most significant bit is saved in Register VF.
+    uint16_t Vx = (opcode >> 8u) & 0x000Fu;
+
+    if (registers[Vx] & 0x0080u)
+        registers[0x000Fu] = 1;
+    else
+        registers[0x000Fu] = 0;
+
+    registers[Vx] <<= 1;
 }
 
 void chip8::OP_9xy0()
 {
     // Since our PC has already been incremented by 2 in Cycle(), we can just increment by 2 again to skip the next instruction.
+    if (registers[(opcode >> 8u) & 0x000Fu] !=
+        registers[(opcode >> 4u) & 0x000Fu])
+    {
+        programCounter += 2;
+    }
 }
 
 void chip8::OP_Annn()
 {
-   
+    index = opcode & 0x0FFFu;
 }
 
 void chip8::OP_Bnnn()
 {
-    
+    programCounter = memory[opcode & 0x0FFFu] + registers[0];
 }
 
 void chip8::OP_Cxkk()
 {
-    
+    registers[(opcode >> 8u) & 0x000Fu] = randomByte(randomNumberGenerator) & (opcode & 0x00FFu);
 }
 
 void chip8::OP_Dxyn()
@@ -282,41 +358,124 @@ void chip8::OP_Dxyn()
 void chip8::OP_Ex9E()
 {
     // Since our PC has already been incremented by 2 in Cycle(), we can just increment by 2 again to skip the next instruction.
+    uint8_t Vx = (opcode >> 8u) & 0x000Fu;
+
+    if (keypad[registers[Vx]])
+    {
+        programCounter += 2;
+    }
 }
 
 void chip8::OP_ExA1()
 {
     // Since our PC has already been incremented by 2 in Cycle(), we can just increment by 2 again to skip the next instruction.
+    uint8_t Vx = (opcode >> 8u) & 0x000Fu;
+
+    if (!keypad[registers[Vx]])
+    {
+        programCounter += 2;
+    }
 }
 
 void chip8::OP_Fx07()
 {
-    
+    registers[(opcode >> 8u) & 0x000Fu] = delayTimer;
 }
 
 void chip8::OP_Fx0A()
 {
     // The easiest way to “wait” is to decrement the PC by 2 whenever a keypad value is not detected. This has the effect of running the same instruction repeatedly.
+    uint8_t Vx = (opcode >> 8u) & 0x000Fu;
+
+    if (keypad[0])
+    {
+        registers[Vx] = 0;
+    }
+    else if (keypad[1])
+    {
+        registers[Vx] = 1;
+    }
+    else if (keypad[2])
+    {
+        registers[Vx] = 2;
+    }
+    else if (keypad[3])
+    {
+        registers[Vx] = 3;
+    }
+    else if (keypad[4])
+    {
+        registers[Vx] = 4;
+    }
+    else if (keypad[5])
+    {
+        registers[Vx] = 5;
+    }
+    else if (keypad[6])
+    {
+        registers[Vx] = 6;
+    }
+    else if (keypad[7])
+    {
+        registers[Vx] = 7;
+    }
+    else if (keypad[8])
+    {
+        registers[Vx] = 8;
+    }
+    else if (keypad[9])
+    {
+        registers[Vx] = 9;
+    }
+    else if (keypad[10])
+    {
+        registers[Vx] = 10;
+    }
+    else if (keypad[11])
+    {
+        registers[Vx] = 11;
+    }
+    else if (keypad[12])
+    {
+        registers[Vx] = 12;
+    }
+    else if (keypad[13])
+    {
+        registers[Vx] = 13;
+    }
+    else if (keypad[14])
+    {
+        registers[Vx] = 14;
+    }
+    else if (keypad[15])
+    {
+        registers[Vx] = 15;
+    }
+    else
+    {
+        programCounter -= 2;
+    }
 }
 
 void chip8::OP_Fx15()
 {
-    
+    delayTimer = registers[(opcode >> 8u) & 0x000Fu];
 }
 
 void chip8::OP_Fx18()
 {
-  
+    soundTimer = registers[(opcode >> 8u) & 0x000Fu];
 }
 
 void chip8::OP_Fx1E()
 {
-   
+    index += registers[(opcode >> 8u) & 0x000Fu];
 }
 
 void chip8::OP_Fx29()
 {
     // We know the font characters are located at 0x50, and we know they’re five bytes each, so we can get the address of the first byte of any character by taking an offset from the start address.
+    index = FONTSET_ADDRESS + (5*registers[(opcode >> 8u) & 0x000Fu]);
 }
 
 void chip8::OP_Fx33()
@@ -324,14 +483,38 @@ void chip8::OP_Fx33()
     // Store BCD representation of Vx in memory locations I, I+1, and I+2.
     // The interpreter takes the decimal value of Vx, and places the hundreds digit in memory at location in I, the tens digit at location I+1, and the ones digit at location I+2.
     // We can use the modulus operator to get the right-most digit of a number, and then do a division to remove that digit. A division by ten will either completely remove the digit (340 / 10 = 34), or result in a float which will be truncated (345 / 10 = 34.5 = 34).
+
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t value = registers[Vx];
+
+    // Ones-place
+    memory[index + 2] = value % 10;
+    value /= 10;
+
+    // Tens-place
+    memory[index + 1] = value % 10;
+    value /= 10;
+
+    // Hundreds-place
+    memory[index] = value % 10;
 }
 
 void chip8::OP_Fx55()
 {
-   
+    uint8_t Vx = (opcode >> 8u)& 0x0F00u;
+
+    for (uint8_t i = 0; i <= Vx; ++i)
+    {
+        memory[index + i] = registers[i];
+    }
 }
 
 void chip8::OP_Fx65()
 {
-   
+    uint8_t Vx = (opcode >> 8u) & 0x0F00u;
+
+    for (uint8_t i = 0; i <= Vx; ++i)
+    {
+        registers[i] =  memory[index + i];
+    }
 }
