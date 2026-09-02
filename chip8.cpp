@@ -349,10 +349,45 @@ void chip8::OP_Cxkk()
 
 void chip8::OP_Dxyn()
 {
+    // DRW Vx, Vy, nibble (draw nibble-byte sprite at mem-location I at (Vx, Vy), (VF = collision)
     // Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision.
     // We iterate over the sprite, row by row and column by column. We know there are eight columns because a sprite is guaranteed to be eight pixels wide.
     // If a sprite pixel is on then there may be a collision with what’s already being displayed, so we check if our screen pixel in the same location is set. If so we must set the VF register to express collision.
     // Then we can just XOR the screen pixel with 0xFFFFFFFF to essentially XOR it with the sprite pixel (which we now know is on). We can’t XOR directly because the sprite pixel is either 1 or 0 while our video pixel is either 0x00000000 or 0xFFFFFFFF.
+
+    uint8_t Vx = (opcode >> 8u) & 0x000Fu;
+    uint8_t Vy = (opcode >> 4u) & 0x000Fu;
+    uint8_t height = opcode & 0x000Fu;
+
+    // Wrap
+    uint8_t xPos = registers[Vx] % 64;
+    uint8_t yPos = registers[Vy] % 32;
+
+    registers[0x000F] = 0;
+
+    for (unsigned int row = 0; row < height; row++)
+    {
+        uint8_t spriteByte = memory[index + row];
+
+        for (unsigned int col = 0; col < 8; ++col)
+        {
+            uint8_t spritePixel = spriteByte & (0x80u >> col);
+            uint32_t *screenPixel = &displayBuffer[(yPos + row) * 64 + (xPos + col)];
+
+            // Sprite pixel on
+            if (spritePixel)
+            {
+                // Screen pixel also on - collision
+                if (*screenPixel == 0xFFFFFFFF)
+                {
+                    registers[0xF] = 1;
+                }
+
+                // XOR with screen
+                *screenPixel ^= 0xFFFFFFFF;
+            }
+        }
+    }
 }
 
 void chip8::OP_Ex9E()
@@ -501,7 +536,7 @@ void chip8::OP_Fx33()
 
 void chip8::OP_Fx55()
 {
-    uint8_t Vx = (opcode >> 8u)& 0x0F00u;
+    uint8_t Vx = (opcode >> 8u)& 0x000Fu;
 
     for (uint8_t i = 0; i <= Vx; ++i)
     {
@@ -511,7 +546,7 @@ void chip8::OP_Fx55()
 
 void chip8::OP_Fx65()
 {
-    uint8_t Vx = (opcode >> 8u) & 0x0F00u;
+    uint8_t Vx = (opcode >> 8u) & 0x000Fu;
 
     for (uint8_t i = 0; i <= Vx; ++i)
     {
