@@ -1,0 +1,1 @@
+main.exe 10 1 test.ch8

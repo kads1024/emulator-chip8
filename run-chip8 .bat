@@ -1,0 +1,1 @@
+main.exe 10 3 tetris.ch8
