@@ -339,7 +339,7 @@ void chip8::OP_Annn()
 
 void chip8::OP_Bnnn()
 {
-    programCounter = memory[opcode & 0x0FFFu] + registers[0];
+    programCounter = (opcode & 0x0FFFu) + registers[0];
 }
 
 void chip8::OP_Cxkk()
